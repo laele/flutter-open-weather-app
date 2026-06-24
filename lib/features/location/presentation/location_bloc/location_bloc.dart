@@ -16,6 +16,8 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> with WidgetsBindin
   final CheckLocationPermissionUseCase _checkLocationPermissionUseCase;
   final GetCurrentLocationUseCase _getCurrentLocationUseCase;
 
+  bool _isRequestingPermission = false;
+
   LocationBloc({
     required CheckLocationPermissionUseCase checkLocationPermissionUseCase,
     required GetCurrentLocationUseCase getCurrentLocationUseCase,
@@ -32,6 +34,7 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> with WidgetsBindin
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      if (_isRequestingPermission) return;
       add(LocationStatusChecked());
     }
   }
@@ -56,8 +59,11 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> with WidgetsBindin
   }
 
   FutureOr<void> _onLocationPermissionRequested(LocationPermissionRequested event, Emitter<LocationState> emit) async {
-    emit(state.copyWith(status: LocationStatus.loading));
+    //emit(state.copyWith(status: LocationStatus.loading));
+    _isRequestingPermission = true;
     await _getCurrentLocation(emit);
+    await Future.delayed(Duration(milliseconds: 500));
+    _isRequestingPermission = false;
   }
 
   // No loading needed - since is a refresh not initial loading
@@ -69,7 +75,9 @@ class LocationBloc extends Bloc<LocationEvent, LocationState> with WidgetsBindin
   Future<void> _getCurrentLocation(Emitter<LocationState> emit) async {
     final result = await _getCurrentLocationUseCase(NoParams());
     result.fold(
-      (failure) => emit(state.copyWith(status: _statusFromFailure(failure))),
+      (failure) {
+        emit(state.copyWith(status: _statusFromFailure(failure)));
+      },
       (coordinates) => emit(
         state.copyWith(
           status: LocationStatus.granted,

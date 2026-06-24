@@ -43,7 +43,11 @@ final class LocationState extends Equatable {
     LocationStatus? status,
     CoordinatesEntity? coordinates,
     DateTime? fetchedAt,
-  }) => LocationState(status: status ?? this.status, coordinates: coordinates ?? this.coordinates, fetchedAt: fetchedAt ?? this.fetchedAt);
+  }) => LocationState(
+    status: status ?? this.status,
+    coordinates: coordinates ?? this.coordinates,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+  );
 
   @override
   List<Object?> get props => [status, coordinates, fetchedAt];

@@ -15,7 +15,6 @@ class LocationDataSourceImpl implements LocationDataSource {
     if (!serviceEnabled) return LocationPermissionStatus.serviceDisabled;
 
     final permission = await Geolocator.checkPermission();
-
     return switch (permission) {
       LocationPermission.always => LocationPermissionStatus.granted,
       LocationPermission.whileInUse => LocationPermissionStatus.granted,
@@ -25,6 +24,7 @@ class LocationDataSourceImpl implements LocationDataSource {
     };
   }
 
+  @override
   Future<CoordinatesEntity> getCurrentLocation() async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) throw LocationServiceDisabledException();
@@ -32,12 +32,14 @@ class LocationDataSourceImpl implements LocationDataSource {
     var permission = await Geolocator.checkPermission();
 
     if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+      final permission = await Geolocator.requestPermission();
+
       if (permission == LocationPermission.denied) {
         throw LocationPermissionDeniedException();
+      } else if (permission == LocationPermission.deniedForever) {
+        throw LocationPermissionDeniedForeverException();
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       throw LocationPermissionDeniedForeverException();
     }
