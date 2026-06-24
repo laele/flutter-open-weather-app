@@ -1,38 +1,42 @@
-import 'package:flutter_weather_app/core/blocs/theme_cubit/theme_cubit.dart';
-import 'package:flutter_weather_app/core/common/services/location/data/data_source/location_remote_data_source.dart';
-import 'package:flutter_weather_app/core/common/services/location/data/repositories/location_repository_impl.dart';
-import 'package:flutter_weather_app/core/common/services/location/domain/repositories/location_repository.dart';
-import 'package:flutter_weather_app/core/common/services/location/domain/usecases/get_location_usecase.dart';
-import 'package:flutter_weather_app/features/home/data/data_source/weather_remote_data_source.dart';
-import 'package:flutter_weather_app/features/home/data/repositories/weather_repository_impl.dart';
-import 'package:flutter_weather_app/features/home/domain/repositories/weather_repository.dart';
-import 'package:flutter_weather_app/features/home/domain/usecases/get_current_weather_usecase.dart';
-import 'package:flutter_weather_app/features/home/domain/usecases/get_hourly_weather_usecase.dart';
-import 'package:flutter_weather_app/features/home/presentation/current_weather_bloc/current_weather_bloc.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_weather_app/features/home/presentation/hourly_weather_bloc/hourly_weather_bloc.dart';
+import 'package:flutter_weather_app/features/location/domain/usecases/check_location_permission_usecase.dart';
+import 'package:flutter_weather_app/features/location/presentation/location_bloc/location_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter_weather_app/features/location/data/data_source/location_data_source.dart';
+import 'package:flutter_weather_app/features/location/data/repositories/location_repository_impl.dart';
+import 'package:flutter_weather_app/features/location/domain/repositories/location_repository.dart';
+import 'package:flutter_weather_app/features/location/domain/usecases/get_current_location_usecase.dart';
+import 'package:flutter_weather_app/features/weather/data/data_source/weather_remote_data_source.dart';
+import 'package:flutter_weather_app/features/weather/data/repositories/weather_repository_impl.dart';
+import 'package:flutter_weather_app/features/weather/domain/repositories/weather_repository.dart';
+import 'package:flutter_weather_app/features/weather/domain/usecases/get_weather_by_coordinates_usecase.dart';
+import 'package:flutter_weather_app/features/weather/presentation/weather_bloc/weather_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
-  _initTheme();
-  _initLocation();
-  _initWeather();
+  // Hive
+  /*await Hive.initFlutter();
+  Hive.registerAdapter(LocationHiveModelAdapter());
+  final locationBox = await Hive.openBox<LocationHiveModel>('location_box');*/
+  //
 
+  // Dio
   final dioClient = Dio();
   serviceLocator.registerLazySingleton<Dio>(() => dioClient);
-}
+  //
 
-void _initTheme() {
-  serviceLocator.registerLazySingleton<ThemeCubit>(() => ThemeCubit());
+  _initLocation();
+  _initWeather();
 }
 
 void _initLocation() {
   serviceLocator
-    ..registerFactory<LocationRemoteDataSource>(() => LocationRemoteDataSourceImpl())
-    ..registerFactory<LocationRepository>(() => LocationRepositoryImpl(locationRemoteDataSource: serviceLocator()))
-    ..registerFactory<GetLocationUseCase>(() => GetLocationUseCase(locationRepository: serviceLocator()));
+    ..registerFactory<LocationDataSource>(() => LocationDataSourceImpl())
+    ..registerFactory<LocationRepository>(() => LocationRepositoryImpl(locationDataSource: serviceLocator()))
+    ..registerFactory<GetCurrentLocationUseCase>(() => GetCurrentLocationUseCase(locationRepository: serviceLocator()))
+    ..registerFactory<CheckLocationPermissionUseCase>(() => CheckLocationPermissionUseCase(locationRepository: serviceLocator()))
+    ..registerFactory<LocationBloc>(() => LocationBloc(checkLocationPermissionUseCase: serviceLocator(), getCurrentLocationUseCase: serviceLocator()));
 }
 
 void _initWeather() {
@@ -40,9 +44,9 @@ void _initWeather() {
     ..registerFactory<WeatherRemoteDataSource>(() => WeatherRemoteDataSourceImpl(dioClient: serviceLocator()))
     ..registerFactory<WeatherRepository>(() => (WeatherRepositoryImpl(weatherRemoteDataSource: serviceLocator())))
     // Use Cases
-    ..registerFactory<GetCurrentWeatherUseCase>(() => GetCurrentWeatherUseCase(weatherRepository: serviceLocator()))
-    ..registerFactory(() => GetHourlyWeatherUseCase(weatherRepository: serviceLocator()))
+    ..registerFactory<GetWeatherByCoordinatesUseCase>(() => GetWeatherByCoordinatesUseCase(weatherRepository: serviceLocator()))
+    //..registerFactory(() => GetHourlyWeatherUseCase(weatherRepository: serviceLocator()))
     // bLoc
-    ..registerFactory(() => CurrentWeatherBloc(getCurrentWeatherUseCase: serviceLocator(), getLocationUseCase: serviceLocator()))
-    ..registerFactory(() => HourlyWeatherBloc(getHourlyWeatherUseCase: serviceLocator(), getLocationUseCase: serviceLocator()));
+    ..registerFactory(() => WeatherBloc(getWeatherByCoordinatesUseCase: serviceLocator()));
+  //..registerFactory(() => HourlyWeatherBloc(getHourlyWeatherUseCase: serviceLocator()));
 }

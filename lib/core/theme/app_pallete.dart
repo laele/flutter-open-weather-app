@@ -7,6 +7,8 @@ final class AppPallete extends ThemeExtension<AppPallete> {
   final Color? primaryBoxShadowContainerColor;
   final Color? shimmerBoxColor;
   final Color? highlightShimmerColor;
+  final Color? snackbarBackgroundColor;
+  final Color? snackbarTextColor;
 
   const AppPallete({
     this.scaffoldBackgroundColor,
@@ -15,6 +17,8 @@ final class AppPallete extends ThemeExtension<AppPallete> {
     this.primaryBoxShadowContainerColor,
     this.shimmerBoxColor,
     this.highlightShimmerColor,
+    this.snackbarBackgroundColor,
+    this.snackbarTextColor,
   });
 
   @override
@@ -25,6 +29,8 @@ final class AppPallete extends ThemeExtension<AppPallete> {
     Color? primaryBoxShadowContainerColor,
     Color? shimmerBoxColor,
     Color? highlightShimmerColor,
+    Color? snackbarBackgroundColor,
+    Color? snackbarTextColor,
   }) {
     return AppPallete(
       scaffoldBackgroundColor: scaffoldBackgroundColor ?? this.scaffoldBackgroundColor,
@@ -33,6 +39,8 @@ final class AppPallete extends ThemeExtension<AppPallete> {
       primaryBoxShadowContainerColor: primaryBoxShadowContainerColor ?? this.primaryBoxShadowContainerColor,
       shimmerBoxColor: shimmerBoxColor ?? this.shimmerBoxColor,
       highlightShimmerColor: highlightShimmerColor ?? this.highlightShimmerColor,
+      snackbarBackgroundColor: snackbarBackgroundColor ?? this.snackbarBackgroundColor,
+      snackbarTextColor: snackbarTextColor ?? this.snackbarTextColor,
     );
   }
 
@@ -46,6 +54,8 @@ final class AppPallete extends ThemeExtension<AppPallete> {
       primaryBoxShadowContainerColor: Color.lerp(primaryBoxShadowContainerColor, other.primaryBoxShadowContainerColor, t),
       shimmerBoxColor: Color.lerp(shimmerBoxColor, other.shimmerBoxColor, t),
       highlightShimmerColor: Color.lerp(highlightShimmerColor, other.highlightShimmerColor, t),
+      snackbarBackgroundColor: Color.lerp(snackbarBackgroundColor, other.snackbarBackgroundColor, t),
+      snackbarTextColor: Color.lerp(snackbarTextColor, other.snackbarTextColor, t),
     );
   }
 }
@@ -58,6 +68,8 @@ class Palettes {
     primaryBoxShadowContainerColor: Colors.black.withAlpha(70),
     shimmerBoxColor: Color.fromARGB(255, 186, 204, 222),
     highlightShimmerColor: Color.fromARGB(255, 210, 222, 234),
+    snackbarBackgroundColor: const Color.fromARGB(255, 3, 72, 184),
+    snackbarTextColor: Colors.white,
   );
   static AppPallete dark = AppPallete(
     scaffoldBackgroundColor: null,
@@ -66,5 +78,7 @@ class Palettes {
     primaryBoxShadowContainerColor: Colors.black.withAlpha(90),
     shimmerBoxColor: Colors.grey.shade900,
     highlightShimmerColor: Colors.grey.shade800,
+    snackbarBackgroundColor: Color.fromARGB(255, 40, 40, 40),
+    snackbarTextColor: Colors.white,
   );
 }
